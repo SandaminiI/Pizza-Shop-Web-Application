@@ -24,10 +24,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 	app := fiber.New()
+
+	// Enable logging
+	app.Use(logger.New())
 
 	// Enable CORS
 	app.Use(cors.New(cors.Config{
@@ -38,6 +42,8 @@ func main() {
 
 	config.ConnectDatabase()
 	routes.ItemRoutes(app)
+	routes.CustomerRoutes(app)
+	routes.InvoiceRoutes(app)
 
 	app.Listen(":3001")
 }
