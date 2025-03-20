@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { 
-  Button, Select, MenuItem, Card, CardContent, Typography, Table, TableRow, 
-  TableCell, TableBody, Paper, Grid, Box 
+  Button, Select, MenuItem, Card, CardContent, Typography, Table, TableHead, 
+  TableRow, TableCell, TableBody, Paper, Grid, Box, Dialog, DialogActions, 
+  DialogContent, DialogTitle 
 } from "@mui/material";
 
 export default function Invoices() {
@@ -10,6 +11,8 @@ export default function Invoices() {
   const [items, setItems] = useState([]);  
   const [invoiceItems, setInvoiceItems] = useState([]);  
   const [customerId, setCustomerId] = useState("");  
+  const [openInvoicePopup, setOpenInvoicePopup] = useState(false); 
+  const invoiceRef = useRef(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -51,15 +54,36 @@ export default function Invoices() {
     try {
       await axios.post("http://localhost:3001/invoices", { customer_id: customerId, items: invoiceItems }, { headers: { "Content-Type": "application/json" } });
 
-      setCustomerId("");
-      setInvoiceItems([]);
+      setOpenInvoicePopup(true);
     } catch (err) {
       console.error("Error creating invoice", err);
     }
   };
 
-  // Calculate total amount
   const totalAmount = invoiceItems.reduce((acc, item) => acc + item.subtotal, 0);
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            hr { margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          ${invoiceRef.current.innerHTML}
+          <script>
+            window.onload = function() { window.print(); window.close(); };
+          </script>
+        </body>
+      </html>
+    `);
+  };
 
   return (
     <Box className="flex flex-col items-center p-6 min-h-screen bg-gray-50">
@@ -135,6 +159,49 @@ export default function Invoices() {
           </TableBody>
         </Table>
       </Paper>
+
+      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)}>
+        <DialogTitle>Invoice Created Successfully 🎉</DialogTitle>
+        <DialogContent>
+          <div ref={invoiceRef} style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              🏪 Pizza Shop Invoice
+            </Typography>
+            <Typography variant="h6">
+              Customer: {customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
+            </Typography>
+            <Typography variant="h6">
+              Phone: {customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
+            </Typography>
+            <hr />
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Item</strong></TableCell>
+                  <TableCell><strong>Qty</strong></TableCell>
+                  <TableCell><strong>Price</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {invoiceItems.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>${item.subtotal.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Typography variant="h5" align="right" style={{ marginTop: "10px" }}>
+              <strong>Total: ${totalAmount.toFixed(2)}</strong>
+            </Typography>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenInvoicePopup(false)}>Close</Button>
+          <Button variant="contained" color="secondary" onClick={handlePrint}>Print Invoice</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
