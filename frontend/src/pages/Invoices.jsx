@@ -3,7 +3,7 @@ import axios from "axios";
 import { 
   Button, Select, MenuItem, Card, CardContent, Typography, Table, TableHead, 
   TableRow, TableCell, TableBody, Paper, Grid, Box, Dialog, DialogActions, 
-  DialogContent, DialogTitle 
+  DialogContent, Container
 } from "@mui/material";
 
 export default function Invoices() {
@@ -86,11 +86,14 @@ export default function Invoices() {
   };
 
   return (
-    <Box className="flex flex-col items-center p-6 min-h-screen bg-gray-50">
-      <Card sx={{ width: 600, p: 3, mb: 4, boxShadow: 4, borderRadius: 2 }}>
-        <CardContent>
-          <Typography variant="h5" textAlign="center" gutterBottom>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography variant="h5" textAlign="center" gutterBottom sx={{ fontWeight: "bold" }}>
             🧾 Invoice Management
+          </Typography>
+      <Card sx={{ width: 780, p: 3, mb: 4, boxShadow: 4, borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h6"  gutterBottom>
+            Select customer
           </Typography>
 
           <Grid container spacing={2} alignItems="center">
@@ -117,8 +120,8 @@ export default function Invoices() {
         </CardContent>
       </Card>
 
-      <Paper sx={{ width: 600, p: 2, boxShadow: 4, borderRadius: 2 }}>
-        <Typography variant="h6" textAlign="center" gutterBottom>
+      <Paper sx={{ width: 800, p: 2, boxShadow: 4, borderRadius: 2, height:150 }}>
+        <Typography variant="h6"  gutterBottom>
           🛒 Add Items to Invoice
         </Typography>
 
@@ -127,7 +130,7 @@ export default function Invoices() {
             items.map((item) => (
               <Grid item key={item.id || item.ID} xs={4}>
                 <Button variant="outlined" fullWidth onClick={() => addItemToInvoice(item)}>
-                  {item.name} - ${item.price}
+                  {item.name} - Rs.{item.price}
                 </Button>
               </Grid>
             ))
@@ -137,7 +140,7 @@ export default function Invoices() {
         </Grid>
       </Paper>
 
-      <Paper sx={{ width: 600, p: 2, mt: 3, boxShadow: 4, borderRadius: 2 }}>
+      <Paper sx={{ width: 800, p: 2, mt: 4, boxShadow: 4, borderRadius: 2 }}>
         <Typography variant="h6" textAlign="center" gutterBottom>
           📝 Invoice Summary
         </Typography>
@@ -147,31 +150,33 @@ export default function Invoices() {
               <TableRow key={index}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.quantity}</TableCell>
-                <TableCell>${item.subtotal.toFixed(2)}</TableCell>
+                <TableCell>Rs.{item.subtotal.toFixed(2)}</TableCell>
               </TableRow>
             ))}
             {invoiceItems.length > 0 && (
               <TableRow>
                 <TableCell colSpan={2}><strong>Total</strong></TableCell>
-                <TableCell><strong>${totalAmount.toFixed(2)}</strong></TableCell>
+                <TableCell><strong>Rs.{totalAmount.toFixed(2)}</strong></TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </Paper>
 
-      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)}>
-        <DialogTitle>Invoice Created Successfully 🎉</DialogTitle>
+      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)} PaperProps={{sx: { width: '400px' }}}>
         <DialogContent>
-          <div ref={invoiceRef} style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-            <Typography variant="h5" align="center" gutterBottom>
-              🏪 Pizza Shop Invoice
+        <Typography variant="h6" align="center">
+              Invoice created successfully!
             </Typography>
-            <Typography variant="h6">
-              Customer: {customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
+          <div ref={invoiceRef} style={{ padding: "10px", fontFamily: "Arial, sans-serif" }}>
+            <Typography variant="h6" align="center" gutterBottom>
+              🏪 Invoice
             </Typography>
-            <Typography variant="h6">
-              Phone: {customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
+            <Typography variant="h8">
+              Customer Name: {customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
+            </Typography><br/>
+            <Typography variant="h8">
+              Phone Number: {customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
             </Typography>
             <hr />
             <Table>
@@ -187,13 +192,13 @@ export default function Invoices() {
                   <TableRow key={index}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.quantity}</TableCell>
-                    <TableCell>${item.subtotal.toFixed(2)}</TableCell>
+                    <TableCell>Rs.{item.subtotal.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <Typography variant="h5" align="right" style={{ marginTop: "10px" }}>
-              <strong>Total: ${totalAmount.toFixed(2)}</strong>
+            <Typography variant="h6" align="right" style={{ marginTop: "10px" }}>
+              <strong>Total: Rs.{totalAmount.toFixed(2)}</strong>
             </Typography>
           </div>
         </DialogContent>
@@ -202,6 +207,6 @@ export default function Invoices() {
           <Button variant="contained" color="secondary" onClick={handlePrint}>Print Invoice</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 }
