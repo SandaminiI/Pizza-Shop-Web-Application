@@ -10,6 +10,4 @@ func RunMigrations() {
 
 	// Automatically create tables based on models
 	config.DB.AutoMigrate(&models.Item{}, &models.Invoice{}, &models.InvoiceItem{}, &models.Customer{})
-
-	// Add more models if necessary
 }

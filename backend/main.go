@@ -1,21 +1,3 @@
-// package main
-
-// import (
-// 	"pizza_billing/config"
-// 	"pizza_billing/routes"
-
-// 	"github.com/gofiber/fiber/v2"
-// )
-
-// func main() {
-// 	app := fiber.New()
-// 	config.ConnectDatabase()
-
-// 	routes.ItemRoutes(app)
-
-// 	app.Listen(":3001")
-// }
-
 package main
 
 import (

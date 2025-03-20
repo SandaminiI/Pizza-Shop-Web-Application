@@ -13,17 +13,6 @@ type Invoice struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
-// type InvoiceItem struct {
-// 	gorm.Model
-// 	InvoiceItemID uint           `gorm:"primaryKey" json:"invoice_item_id"`
-// 	InvoiceID     uint           `json:"invoice_id"`
-// 	ItemID        uint           `json:"item_id"`
-// 	Item          Item           `gorm:"foreignKey:ItemID"`
-// 	Quantity      int            `json:"quantity"`
-// 	Subtotal      float64        `json:"subtotal"`
-// 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
-// }
-
 type InvoiceItem struct {
 	InvoiceItemID uint           `gorm:"primaryKey;column:invoice_item_id" json:"invoice_item_id"` // Explicitly set as primary key
 	InvoiceID     uint           `json:"invoice_id"`
