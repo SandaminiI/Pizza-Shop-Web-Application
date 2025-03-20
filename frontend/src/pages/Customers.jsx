@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { 
-  Button, TextField, Card, CardContent, Typography, Table, TableHead, 
-  TableRow, TableCell, TableBody, Paper, Grid, Box, IconButton, Dialog, DialogActions, 
-  DialogContent, DialogTitle, Snackbar, Alert 
+
+import {
+  Button, TextField, Card, CardContent, Typography, Table, TableHead,
+  TableRow, TableCell, TableBody, Paper, Grid, Box, IconButton, Dialog, 
+  DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Container
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 
@@ -57,20 +58,28 @@ export default function Customers() {
   };
 
   return (
-    <Box className="flex flex-col items-center p-6 min-h-screen bg-gray-50">
-      {/* Customer Management Form */}
-      <Card sx={{ width: 600, p: 3, mb: 4, boxShadow: 4, borderRadius: 2 }}>
-        <CardContent>
-          <Typography variant="h5" textAlign="center" gutterBottom>
-            🧑‍💼 Customer Management
-          </Typography>
 
-          <Grid container spacing={2} alignItems="center">
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Header */}
+      <Typography variant="h5" fontWeight="bold" textAlign="center" gutterBottom>
+        Customers
+      </Typography>
+      
+      {/* Add Customer Form */}
+      <Card elevation={3} sx={{ mb: 4, p: 3, borderRadius: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Add New Customer
+          </Typography>
+          <Grid container spacing={2}>
             <Grid item xs={5}>
-              <TextField label="Customer Name" fullWidth value={newCustomer.name} onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} />
+              <TextField label="Customer Name" fullWidth value={newCustomer.name} 
+                onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} />
             </Grid>
             <Grid item xs={5}>
-              <TextField label="Phone Number" fullWidth value={newCustomer.phone} onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} />
+              <TextField label="Phone Number" fullWidth value={newCustomer.phone} 
+                onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} />
+
             </Grid>
             <Grid item xs={2}>
               <Button variant="contained" color="primary" fullWidth sx={{ height: "100%" }} onClick={addCustomer}>
@@ -81,18 +90,6 @@ export default function Customers() {
         </CardContent>
       </Card>
 
-      {/* Customers List Table */}
-      <Paper sx={{ width: 600, p: 2, boxShadow: 4, borderRadius: 2 }}>
-        <Typography variant="h6" textAlign="center" gutterBottom>
-          🛍️ Customer List
-        </Typography>
-
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
-              <TableCell>Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -135,6 +132,6 @@ export default function Customers() {
           Customer deleted successfully!
         </Alert>
       </Snackbar>
-    </Box>
+
   );
 }
