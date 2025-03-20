@@ -1,19 +1,32 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Button, TextField, Select, MenuItem } from "@mui/material";
-import { useReactToPrint } from "react-to-print";
+import { 
+  Button, Select, MenuItem, Card, CardContent, Typography, Table, TableHead, 
+  TableRow, TableCell, TableBody, Paper, Grid, Box, Dialog, DialogActions, 
+  DialogContent, DialogTitle 
+} from "@mui/material";
 
 export default function Invoices() {
-  const [items, setItems] = useState([]); // Available items
-  const [invoiceItems, setInvoiceItems] = useState([]); // Items added to invoice
-  const [customer, setCustomer] = useState({ name: "", phone: "" });
-  const [total, setTotal] = useState(0);
-
-  const invoiceRef = useRef(); // Reference for printing
+  const [customers, setCustomers] = useState([]);  
+  const [items, setItems] = useState([]);  
+  const [invoiceItems, setInvoiceItems] = useState([]);  
+  const [customerId, setCustomerId] = useState("");  
+  const [openInvoicePopup, setOpenInvoicePopup] = useState(false); 
+  const invoiceRef = useRef(null);
 
   useEffect(() => {
+    fetchCustomers();
     fetchItems();
   }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get("http://localhost:3001/customers");
+      setCustomers(res.data);
+    } catch (err) {
+      console.error("Error fetching customers", err);
+    }
+  };
 
   const fetchItems = async () => {
     try {
@@ -25,76 +38,170 @@ export default function Invoices() {
   };
 
   const addItemToInvoice = (item) => {
-    const existingItem = invoiceItems.find((i) => i.item_id === item.item_id);
+    const existingItem = invoiceItems.find((i) => i.item_id === (item.id || item.ID));
     if (existingItem) {
       existingItem.quantity += 1;
       existingItem.subtotal = existingItem.quantity * item.price;
       setInvoiceItems([...invoiceItems]);
     } else {
-      setInvoiceItems([...invoiceItems, { ...item, quantity: 1, subtotal: item.price }]);
+      setInvoiceItems([...invoiceItems, { item_id: item.id || item.ID, name: item.name, quantity: 1, subtotal: item.price }]);
     }
-    calculateTotal();
   };
 
-  const calculateTotal = () => {
-    const totalAmount = invoiceItems.reduce((acc, item) => acc + item.subtotal, 0);
-    setTotal(totalAmount);
+  const createInvoice = async () => {
+    if (!customerId || invoiceItems.length === 0) return;
+
+    try {
+      await axios.post("http://localhost:3001/invoices", { customer_id: customerId, items: invoiceItems }, { headers: { "Content-Type": "application/json" } });
+
+      setOpenInvoicePopup(true);
+    } catch (err) {
+      console.error("Error creating invoice", err);
+    }
   };
 
-  const printInvoice = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
+  const totalAmount = invoiceItems.reduce((acc, item) => acc + item.subtotal, 0);
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            hr { margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          ${invoiceRef.current.innerHTML}
+          <script>
+            window.onload = function() { window.print(); window.close(); };
+          </script>
+        </body>
+      </html>
+    `);
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Invoice Management</h1>
+    <Box className="flex flex-col items-center p-6 min-h-screen bg-gray-50">
+      <Card sx={{ width: 600, p: 3, mb: 4, boxShadow: 4, borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h5" textAlign="center" gutterBottom>
+            🧾 Invoice Management
+          </Typography>
 
-      <div className="flex gap-4 mb-4">
-        <TextField label="Customer Name" variant="outlined" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} />
-        <TextField label="Phone" variant="outlined" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} />
-      </div>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={8}>
+              <Select 
+                fullWidth 
+                value={customerId || ""}  
+                onChange={(e) => setCustomerId(e.target.value)}
+              >
+                <MenuItem value="">Select Customer</MenuItem>
+                {customers.length > 0 && customers.map((customer) => (
+                  <MenuItem key={customer.id || customer.ID} value={customer.id || customer.ID}>
+                    {customer.name} - {customer.phone}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item xs={4}>
+              <Button variant="contained" color="primary" fullWidth sx={{ height: "100%" }} onClick={createInvoice}>
+                Create Invoice
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
-      <h2 className="text-xl font-semibold">Select Items</h2>
-      <div className="grid grid-cols-3 gap-4 mt-2">
-        {items.map((item) => (
-          <Button key={item.item_ID} variant="contained" onClick={() => addItemToInvoice(item)}>
-            {item.name} - ${item.price}
-          </Button>
-        ))}
-      </div>
+      <Paper sx={{ width: 600, p: 2, boxShadow: 4, borderRadius: 2 }}>
+        <Typography variant="h6" textAlign="center" gutterBottom>
+          🛒 Add Items to Invoice
+        </Typography>
 
-      <h2 className="text-xl font-semibold mt-6">Invoice Items</h2>
-      <div className="border rounded p-4">
-        <ul>
-          {invoiceItems.map((item, index) => (
-            <li key={index} className="flex justify-between p-2 border-b">
-              {item.name} x {item.quantity} = ${item.subtotal}
-            </li>
-          ))}
-        </ul>
-        <h3 className="text-lg font-bold mt-4">Total: ${total.toFixed(2)}</h3>
-      </div>
+        <Grid container spacing={1}>
+          {items.length > 0 ? (
+            items.map((item) => (
+              <Grid item key={item.id || item.ID} xs={4}>
+                <Button variant="outlined" fullWidth onClick={() => addItemToInvoice(item)}>
+                  {item.name} - ${item.price}
+                </Button>
+              </Grid>
+            ))
+          ) : (
+            <Typography textAlign="center" color="gray">No items available.</Typography>
+          )}
+        </Grid>
+      </Paper>
 
-      <div className="mt-4 flex gap-4">
-        <Button variant="contained" color="secondary" onClick={printInvoice}>
-          Print Invoice
-        </Button>
-      </div>
+      <Paper sx={{ width: 600, p: 2, mt: 3, boxShadow: 4, borderRadius: 2 }}>
+        <Typography variant="h6" textAlign="center" gutterBottom>
+          📝 Invoice Summary
+        </Typography>
+        <Table>
+          <TableBody>
+            {invoiceItems.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>${item.subtotal.toFixed(2)}</TableCell>
+              </TableRow>
+            ))}
+            {invoiceItems.length > 0 && (
+              <TableRow>
+                <TableCell colSpan={2}><strong>Total</strong></TableCell>
+                <TableCell><strong>${totalAmount.toFixed(2)}</strong></TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Paper>
 
-      {/* Invoice Print Layout */}
-      <div className="hidden" ref={invoiceRef}>
-        <h1 className="text-2xl font-bold">Invoice</h1>
-        <p>Customer: {customer.name}</p>
-        <p>Phone: {customer.phone}</p>
-        <ul>
-          {invoiceItems.map((item, index) => (
-            <li key={index}>
-              {item.name} x {item.quantity} = ${item.subtotal}
-            </li>
-          ))}
-        </ul>
-        <h3 className="text-lg font-bold">Total: ${total.toFixed(2)}</h3>
-      </div>
-    </div>
+      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)}>
+        <DialogTitle>Invoice Created Successfully 🎉</DialogTitle>
+        <DialogContent>
+          <div ref={invoiceRef} style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              🏪 Pizza Shop Invoice
+            </Typography>
+            <Typography variant="h6">
+              Customer: {customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
+            </Typography>
+            <Typography variant="h6">
+              Phone: {customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
+            </Typography>
+            <hr />
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Item</strong></TableCell>
+                  <TableCell><strong>Qty</strong></TableCell>
+                  <TableCell><strong>Price</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {invoiceItems.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>${item.subtotal.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Typography variant="h5" align="right" style={{ marginTop: "10px" }}>
+              <strong>Total: ${totalAmount.toFixed(2)}</strong>
+            </Typography>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenInvoicePopup(false)}>Close</Button>
+          <Button variant="contained" color="secondary" onClick={handlePrint}>Print Invoice</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

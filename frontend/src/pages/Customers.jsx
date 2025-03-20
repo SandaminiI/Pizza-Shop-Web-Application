@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import {
   Button, TextField, Card, CardContent, Typography, Table, TableHead,
   TableRow, TableCell, TableBody, Paper, Grid, Box, IconButton, Dialog, 
@@ -32,6 +33,7 @@ export default function Customers() {
 
     try {
       await axios.post("http://localhost:3001/customers", newCustomer, { headers: { "Content-Type": "application/json" } });
+
       setNewCustomer({ name: "", phone: "" });
       fetchCustomers();
     } catch (err) {
@@ -56,6 +58,7 @@ export default function Customers() {
   };
 
   return (
+
     <Container maxWidth="md" sx={{ py: 4 }}>
       {/* Header */}
       <Typography variant="h5" fontWeight="bold" textAlign="center" gutterBottom>
@@ -76,6 +79,7 @@ export default function Customers() {
             <Grid item xs={5}>
               <TextField label="Phone Number" fullWidth value={newCustomer.phone} 
                 onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} />
+
             </Grid>
             <Grid item xs={2}>
               <Button variant="contained" color="primary" fullWidth sx={{ height: "100%" }} onClick={addCustomer}>
@@ -86,17 +90,6 @@ export default function Customers() {
         </CardContent>
       </Card>
 
-      {/* Customers Table */}
-      <Paper elevation={3} sx={{ borderRadius: 3, p: 2 }}>
-        <Typography variant="h6" textAlign="center" gutterBottom>
-          Customer List
-        </Typography>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-              <TableCell><strong>Name</strong></TableCell>
-              <TableCell><strong>Phone</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -139,6 +132,6 @@ export default function Customers() {
           Customer deleted successfully!
         </Alert>
       </Snackbar>
-    </Container>
+
   );
 }
