@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import {
   Button, TextField, Card, CardContent, Typography, Table, TableHead,
-  TableRow, TableCell, TableBody, Paper, Grid, Box, IconButton, Dialog, 
-  DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Container
+  TableRow, TableCell, TableBody, Paper, Box, IconButton, Dialog, 
+  DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Container, Stack
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 
@@ -30,10 +29,8 @@ export default function Customers() {
 
   const addCustomer = async () => {
     if (!newCustomer.name || !newCustomer.phone) return;
-
     try {
-      await axios.post("http://localhost:3001/customers", newCustomer, { headers: { "Content-Type": "application/json" } });
-
+      await axios.post("http://localhost:3001/customers", newCustomer);
       setNewCustomer({ name: "", phone: "" });
       fetchCustomers();
     } catch (err) {
@@ -58,38 +55,38 @@ export default function Customers() {
   };
 
   return (
-
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Header */}
       <Typography variant="h5" fontWeight="bold" textAlign="center" gutterBottom>
         Customers
       </Typography>
       
-      {/* Add Customer Form */}
       <Card elevation={3} sx={{ mb: 4, p: 3, borderRadius: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             Add New Customer
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={5}>
-              <TextField label="Customer Name" fullWidth value={newCustomer.name} 
-                onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} />
-            </Grid>
-            <Grid item xs={5}>
-              <TextField label="Phone Number" fullWidth value={newCustomer.phone} 
-                onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} />
-
-            </Grid>
-            <Grid item xs={2}>
-              <Button variant="contained" color="primary" fullWidth sx={{ height: "100%" }} onClick={addCustomer}>
-                Add
-              </Button>
-            </Grid>
-          </Grid>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <TextField label="Customer Name" fullWidth value={newCustomer.name} 
+              onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })} />
+            <TextField label="Phone Number" fullWidth value={newCustomer.phone} 
+              onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} />
+            <Button variant="contained" color="primary" onClick={addCustomer}>
+              Add
+            </Button>
+          </Stack>
         </CardContent>
       </Card>
 
+      <Paper elevation={3} sx={{ borderRadius: 3, p: 2 }}>
+        <Typography variant="h6" textAlign="center" gutterBottom>
+          Customer List
+        </Typography>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell><strong>Name</strong></TableCell>
+              <TableCell><strong>Phone</strong></TableCell>
+              <TableCell><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -116,7 +113,6 @@ export default function Customers() {
         </Table>
       </Paper>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>Are you sure you want to delete this customer?</DialogContent>
@@ -126,12 +122,11 @@ export default function Customers() {
         </DialogActions>
       </Dialog>
 
-      {/* Success Snackbar */}
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}>
         <Alert severity="success" sx={{ width: "100%" }}>
           Customer deleted successfully!
         </Alert>
       </Snackbar>
-
+    </Container>
   );
 }
