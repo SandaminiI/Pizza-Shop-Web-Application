@@ -3,7 +3,7 @@ import axios from "axios";
 import { 
   Button, Select, MenuItem, Card, CardContent, Typography, Table, TableHead, 
   TableRow, TableCell, TableBody, Paper, Grid, Box, Dialog, DialogActions, 
-  DialogContent, Container
+  DialogContent, Container, Divider
 } from "@mui/material";
 
 export default function Invoices() {
@@ -69,20 +69,65 @@ export default function Invoices() {
         <head>
           <title>Invoice</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; }
-            hr { margin: 10px 0; }
+            body { font-family: "Arial", sans-serif; padding: 20px; color: #333; }
+            .invoice-container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
+            .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+            .company-name { font-size: 20px; font-weight: bold; }
+            .invoice-title { font-size: 24px; font-weight: bold; margin-top: 20px; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f4f4f4; font-weight: bold; }
+            .total { font-size: 18px; font-weight: bold; text-align: right; margin-top: 10px; }
+            .footer { text-align: center; font-size: 14px; margin-top: 20px; color: #555; }
           </style>
         </head>
         <body>
-          ${invoiceRef.current.innerHTML}
+          <div class="invoice-container">
+            <div class="header">
+              <div class="company-name">Pizza Shop</div>
+              <div>123 Temple Road, Kaduwela</div>
+              <div>Phone: (123) 456-7890 | Email: pizzashop@gmail.com</div>
+            </div>
+            
+            <div class="invoice-title">Invoice</div>
+            <p><strong>Invoice No:</strong> INV-${new Date().getTime()}</p>
+            <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            <p><strong>Customer:</strong> ${customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}</p>
+            <p><strong>Phone:</strong> ${customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}</p>
+  
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price (Rs.)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${invoiceItems.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.subtotal.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+  
+            <div class="total">Total: Rs. ${totalAmount.toFixed(2)}</div>
+  
+            <div class="footer">
+              <p>Thank you for your business!</p>
+              <p>Please retain this invoice for your records.</p>
+            </div>
+          </div>
+  
           <script>
             window.onload = function() { window.print(); window.close(); };
           </script>
         </body>
       </html>
-    `);
+    `);  
   };
 
   return (
@@ -163,20 +208,20 @@ export default function Invoices() {
         </Table>
       </Paper>
 
-      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)} PaperProps={{sx: { width: '400px' }}}>
+      <Dialog open={openInvoicePopup} onClose={() => setOpenInvoicePopup(false)} PaperProps={{sx: { width: '450px' }}}>
         <DialogContent>
         <Typography variant="h6" align="center">
-              Invoice created successfully!
+             ✅ Invoice created successfully!
             </Typography>
           <div ref={invoiceRef} style={{ padding: "10px", fontFamily: "Arial, sans-serif" }}>
-            <Typography variant="h6" align="center" gutterBottom>
+            <Typography variant="h6" align="center" gsx={{ fontWeight: "bold", mb: 2 }}>
               🏪 Invoice
             </Typography>
-            <Typography variant="h8">
-              Customer Name: {customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
-            </Typography><br/>
-            <Typography variant="h8">
-              Phone Number: {customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
+            <Typography variant="body2">
+              <strong>Customer Name: </strong>{customers.find(c => c.id === customerId || c.ID === customerId)?.name || "Unknown"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Phone Number: </strong>{customers.find(c => c.id === customerId || c.ID === customerId)?.phone || "Unknown"}
             </Typography>
             <hr />
             <Table>
