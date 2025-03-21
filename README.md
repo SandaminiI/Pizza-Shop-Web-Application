@@ -13,7 +13,7 @@ Ensure you have the following installed:
 
 ### 1️⃣ Clone the Repository
 ```sh
-git clone https://github.com/your-repo/pizza-billing.git
+git clone https://github.com/your-repo/Pizza-Shop-Web-Application.git
 cd pizza-billing
 ```
 
