@@ -39,6 +39,16 @@ go run main.go
 ```
 The backend runs at `http://localhost:3001`.
 
+Configure Environment Variables
+```sh
+Create a .env file in the backend directory and set up the following environment variables:
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=PostgreSQL_Password 
+DB_NAME=pizza_billing
+DB_PORT=5432
+```
+
 ### 4️⃣ Frontend Setup (React)
 ```sh
 cd frontend
