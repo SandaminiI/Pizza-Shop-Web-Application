@@ -30,10 +30,6 @@ psql -U postgres -d pizza_billing
 ```sh
 psql -U postgres -d pizza_billing -f database/schema.sql
 ```
-- Load sample data:
-```sh
-psql -U postgres -d pizza_billing -f database/seed.sql
-```
 
 ### 3️⃣ Backend Setup (Go Fiber API)
 ```sh
